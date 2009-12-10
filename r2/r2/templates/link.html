@@ -172,15 +172,11 @@
   ##q = Link._query(Link.c._id < l._id, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_id'), data = True)
   ##q = Link._query(Link.c._id < thing._id, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_id'), data = True)
 
-<<<<<<< HEAD:r2/r2/templates/link.html
   link = None
-=======
->>>>>>> 8e6a7463c6243192c244b5a28d6cc2bf85223872:r2/r2/templates/link.html
 
   #get the previous post by author, sorted by date
   q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, author_id=thing.author_id, limit = 1, sort = desc('_date'), data = True)
 
-<<<<<<< HEAD:r2/r2/templates/link.html
   results = list(q)
   if results:
     link = results[0]
@@ -214,33 +210,22 @@
   #get the next post in Promoted, sorted by date
   q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_date'), data = True)
 
-=======
->>>>>>> 8e6a7463c6243192c244b5a28d6cc2bf85223872:r2/r2/templates/link.html
   results = list(q)
   if results:
     link = results[0]
 
   if link:
-<<<<<<< HEAD:r2/r2/templates/link.html
     NextLinkInAll = link.url
 
 
   #get the previous post in All, sorted by date
   q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = desc('_date'), data = True)
-=======
-    PrevLinkInAll = link.url
-
-
-  #get the next post by author, sorted by date
-  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, author_id=thing.author_id, limit = 1, sort = asc('_date'), data = True)
->>>>>>> 8e6a7463c6243192c244b5a28d6cc2bf85223872:r2/r2/templates/link.html
 
   results = list(q)
   if results:
     link = results[0]
 
   if link:
-<<<<<<< HEAD:r2/r2/templates/link.html
     PrevLinkInAll = link.url
 
 
@@ -251,51 +236,6 @@
   if results:
     link = results[0]
 
-=======
-    NextLinkInAll = link.url
-
-
-  #get the previous post in Promoted, sorted by date
-  q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_date'), data = True)
-
-  results = list(q)
-  if results:
-    link = results[0]
-
-  if link:
-    PrevLinkInAll = link.url
-
-
-  #get the next post in Promoted, sorted by date
-  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = asc('_date'), data = True)
-
-  results = list(q)
-  if results:
-    link = results[0]
-
-  if link:
-    NextLinkInAll = link.url
-
-
-  #get the previous post in All, sorted by date
-  q = Link._query(Link.c._date < thing._date, Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = desc('_date'), data = True)
-
-  results = list(q)
-  if results:
-    link = results[0]
-
-  if link:
-    PrevLinkInAll = link.url
-
-
-  #get the next post in All, sorted by date
-  q = Link._query(Link.c._date > thing._date, Link.c._deleted == False, Link.c._spam == False, limit = 1, sort = asc('_date'), data = True)
-
-  results = list(q)
-  if results:
-    link = results[0]
-
->>>>>>> 8e6a7463c6243192c244b5a28d6cc2bf85223872:r2/r2/templates/link.html
   if link:
     NextLinkInAll = link.url
 
