@@ -1,12 +1,35 @@
 <%!
   from r2.models import Link, LinkTag
   from r2.lib.db.operators import desc, asc
+  from r2.lib.manager import db_manager
+  from pylons import g
+  from r2.lib.db import tdb_sql as tdb
+  import sqlalchemy as sa
 %>
 
 <%
 #url = "http://lesswrong.local:8080/lw/2/why_truth_and/"
 article = thing.article
 url = article.url
+
+
+
+#set up the sqlalchemy stuff
+testOutput = "Testing2"
+
+dbm = db_manager.db_manager()
+
+engine = db_manager.get_engine(g.main_db_name,
+                                  db_host = g.main_db_host,
+                                  db_user = g.main_db_user,
+                                  db_pass = g.main_db_pass)
+
+conn = engine.connect()
+
+link_type = tdb.types_id[Link._type_id]
+link_thing_tbl = link_type.thing_table
+link_data_tbl = link_type.data_table[0]
+
 
 
 #f = open('/home/robert/Desktop/LW/workfile', 'w')
@@ -153,6 +176,43 @@ if link:
   NextLinkByAuthor = link.url
 
 
+#bug: this doesn't scan for Link.c._deleted == False, Link.c._spam == False, data = True
+
+#get the count for articles by this author
+s = sa.select([sa.func.count(link_data_tbl.c.value)], sa.and_(link_data_tbl.c.value==article.author_id, link_data_tbl.c.key=='author_id') )
+
+result = conn.execute(s)
+
+row = result.fetchone()
+
+testOutput = row[0]
+
+TotalPostsByAuthor = row[0]
+
+
+#get the index of this article
+#that's the number of articles by this author whose date is <= the current article's date
+s = sa.select([sa.func.count(link_data_tbl.c.value)], sa.and_(link_data_tbl.c.value==article.author_id, link_data_tbl.c.key=='author_id', link_thing_tbl.c.thing_id==link_data_tbl.c.thing_id, link_thing_tbl.c.date<=article._date) )
+
+#testOutput = s
+
+#testOutput = article._date
+
+result = conn.execute(s)
+
+row = result.fetchone()
+
+#testOutput = row[0]
+
+CurrentIndexByAuthor = row[0]
+
+
+
+
+
+
+
+
 #get the previous post in Promoted, sorted by date
 q = Link._query(Link.c._date < article._date, Link.c._deleted == False, Link.c._spam == False, Link.c.blessed == True, limit = 1, sort = desc('_date'), data = True)
 
@@ -291,15 +351,15 @@ for tag in tags:
 %else:
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
-<!--   <span class="place">post ${CurrentIndexByAuthor} of ${TotalPostsByAuthor}</span> -->
-  <span class="place">by author</span>
+  <span class="place">post ${CurrentIndexByAuthor} of ${TotalPostsByAuthor}</span>
+<!--  <span class="place">by author</span> -->
 %if NextLinkByAuthor:
   <a class="nav" href="${NextLinkByAuthor}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
-##<!--  <span class="type">by &nbsp; ${unsafe(self.author(friend = thing.friend))}</span> -->
-  <span class="type">TODO add author</span>
+  <span class="type">by &nbsp; TODO add author</span>
+<!--  <span class="type">TODO add author</span> -->
 </li>
 
 %for sequence in thing.sequences:
@@ -310,15 +370,15 @@ for tag in tags:
 %else:
   <a class="nav" href="${sequence['prev']}"><img src="/static/articlenav-prev.gif" alt="Previous" /></a>
 %endif
-<!--   <span class="place">post ${finalIndexForThisArticle} of ${finalArticleCount}</span> -->
-  <span class="place">in sequence</span>
+   <span class="place">post ${finalIndexForThisArticle} of ${finalArticleCount}</span>
+<!--  <span class="place">in sequence</span> -->
 %if sequence['next'] is None:
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %else:
   <a class="nav" href="${sequence['next']}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %endif
-<!--  <span class="type">in &nbsp; '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence</span> -->
-  <span class="type"><a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a></span>
+  <span class="type">in &nbsp; '<a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a>' sequence</span>
+<!--  <span class="type"><a href="http://wiki.lesswrong.com/wiki/${finalSequenceWikipageTitleWithUnderscores}">${finalSequenceWikipageTitle}</a></span> -->
 </li>
 
 %endfor
@@ -330,14 +390,14 @@ for tag in tags:
 %else:
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
-<!--   <span class="place">post ${CurrentIndexInPromoted} of ${TotalPostsInPromoted}</span> -->
-  <span class="place"><a href="http://lesswrong.com/">Promoted Posts</a></span>
+   <span class="place">post ${CurrentIndexInPromoted} of ${TotalPostsInPromoted}</span>
+<!--  <span class="place"><a href="http://lesswrong.com/">Promoted Posts</a></span> -->
 %if NextLinkInPromoted:
   <a class="nav" href="${NextLinkInPromoted}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
-<!--  <span class="type">in &nbsp; <a href="http://lesswrong.com/">Promoted Posts</a></span> -->
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
+  <span class="type">in &nbsp; <a href="http://lesswrong.com/">Promoted Posts</a></span>
 </li>
 %endif
 
@@ -349,14 +409,14 @@ for tag in tags:
 %else:
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
-<!--   <span class="place">post ${CurrentIndexInAll} of ${TotalPostsInAll}</span> -->
-  <span class="place"><a href="http://lesswrong.com/new/">All Posts</a></span>
+   <span class="place">post ${CurrentIndexInAll} of ${TotalPostsInAll}</span>
+<!--  <span class="place"><a href="http://lesswrong.com/new/">All Posts</a></span> -->
 %if NextLinkInAll:
   <a class="nav" href="${NextLinkInAll}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
-<!--  <span class="type">in &nbsp; <a href="http://lesswrong.com/new/">All Posts</a></span> -->
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
+  <span class="type">in &nbsp; <a href="http://lesswrong.com/new/">All Posts</a></span>
 </li>
 %endif
 
@@ -368,14 +428,14 @@ for tag in tags:
 %else:
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
-<!--   <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span> -->
-  <span class="place"><a href="http://lesswrong.com/top/">Top Posts</a></span>
+   <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span>
+<!--  <span class="place"><a href="http://lesswrong.com/top/">Top Posts</a></span> -->
 %if NextLinkInTop:
   <a class="nav" href="${NextLinkInTop}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
-<!--  <span class="type">in &nbsp; <a href="http://lesswrong.com/top/">Top Posts</a></span> -->
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
+  <span class="type">in &nbsp; <a href="http://lesswrong.com/top/">Top Posts</a></span>
 </li>
 %endif
 
@@ -387,16 +447,21 @@ for tag in tags:
 %else:
   <img src="/static/articlenav-prev-grey.gif" alt="Previous" />
 %endif
-<!--   <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span> -->
-  <span class="place">by tag</span>
+   <span class="place">post ${CurrentIndexInTop} of ${TotalPostsInTop}</span>
+<!--  <span class="place">by tag</span> -->
 %if NextLinkByTag[index]:
   <a class="nav" href="${NextLinkByTag[index]}"><img src="/static/articlenav-next.gif" alt="Next" /></a>
 %else:
   <img src="/static/articlenav-next-grey.gif" alt="Next" />
 %endif
-<!--  <span class="type">by tag &nbsp; <a href="http://lesswrong.com/tag/${TagNamesByTag[index]}">${TagNamesByTag[index]}</a></span> -->
-  <span class="type"><a href="http://lesswrong.com/tag/${TagNamesByTag[index]}">${TagNamesByTag[index]}</a></span>
+  <span class="type">by tag &nbsp; <a href="http://lesswrong.com/tag/${TagNamesByTag[index]}">${TagNamesByTag[index]}</a></span>
+<!--  <span class="type"><a href="http://lesswrong.com/tag/${TagNamesByTag[index]}">${TagNamesByTag[index]}</a></span> -->
 </li>
 %endfor
 
 </ul>
+
+
+
+${testOutput}
+
