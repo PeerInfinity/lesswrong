@@ -18,10 +18,6 @@ url = thing.articleurl
 <%
 titlesToAdd = []
 
-##import urllib2
-##for line in urllib2.urlopen('http://wiki.lesswrong.com/wiki.lesswrong.xml'):
-##for line in open('/home/robert/Desktop/LW/wiki.lesswrong.xml', 'r'):
-##for line in urllib2.urlopen('http://acceleratingfuture.com/peer/LWcode/wiki.lesswrong.xml'):
 for line in open('../../wiki.lesswrong.xml', 'r'):
     if '<title>' in line or '</title>' in line:
         titleStartPos = line.find('<title>')

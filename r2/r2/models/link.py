@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
@@ -603,7 +604,8 @@ class Link(Thing, Printable):
               'title': title,
               'next': next,
               'prev': prev,
-              'index': article_index
+              'index': article_index,
+              'articlecount': index  #TODO - test this!  it probably doesn't work
             }
       return {'sequences': sequences}
 
@@ -671,6 +673,16 @@ class Link(Thing, Printable):
       """docstring for prev_in_sequence"""
       sequence = self.get_sequences().get(sequence_name)
       return sequence['prev'] if sequence else None
+
+    def index_in_sequence(self, sequence_name):
+      """docstring for index_in_sequence"""
+      sequence = self.get_sequences().get(sequence_name)
+      return sequence['index'] if sequence else None
+
+    def articlecount_in_sequence(self, sequence_name):
+      """docstring for articlecount_in_sequence"""
+      sequence = self.get_sequences().get(sequence_name)
+      return sequence['articlecount'] if sequence else None
 
     def _nav_query_date_clause(self, sort):
       if isinstance(sort, operators.desc):

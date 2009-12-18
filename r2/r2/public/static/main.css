@@ -487,10 +487,7 @@ div.sidebox select {
 
 
 
-/*{_RL*/
-
-
-/* These are new styles
+/* These are new styles for the article navigation
 ----------------------------------------------------------------------------------------------------*/
 div.articlenavigation {
 	clear: both;
@@ -546,5 +543,3 @@ div.articlenavigation ul li span.type {
 	margin: 0 0 0 10px;
 	width: 509px;
 }
-
-/*}_RL*/
