@@ -35,6 +35,10 @@
   link_type = tdb.types_id[Link._type_id]
   link_thing_tbl = link_type.thing_table
   link_data_tbl = link_type.data_table[0]
+
+  type = tdb.rel_types_id[LinkTag._type_id]
+  linktag_thing_table = type.rel_table[0]
+
 %>
 
 %if article is None:
@@ -86,7 +90,35 @@
 
 <%
 
-##TODO - implement the query for index and articlecount!
+  #bug: this doesn't scan for Link.c._deleted == False, Link.c._spam == False, data = True
+
+  #get the count for promoted articles
+  s = sa.select([sa.func.count(link_data_tbl.c.value)], sa.and_(link_data_tbl.c.key=='blessed') )
+
+  result = conn.execute(s)
+
+  row = result.fetchone()
+
+  #testOutput = row[0]
+
+  articlecount = row[0]
+
+
+  #get the index of this article
+  #that's the number of promoted articles whose date is <= the current article's date
+  s = sa.select([sa.func.count(link_data_tbl.c.value)], sa.and_(link_data_tbl.c.key=='blessed', link_thing_tbl.c.thing_id==link_data_tbl.c.thing_id, link_thing_tbl.c.date<=article._date) )
+
+  #testOutput = s
+
+  #testOutput = article._date
+
+  result = conn.execute(s)
+
+  row = result.fetchone()
+
+  #testOutput = row[0]
+
+  index = row[0]
 
 %>
 
@@ -135,7 +167,39 @@
 
 <%
 
-##TODO - implement the query for index and articlecount!
+  #TODO: use the real article's score!
+  #bug: this will report the wrong index if any other article has the same score
+  articleScore=1
+
+  #bug: this doesn't scan for Link.c._deleted == False, Link.c._spam == False, data = True
+
+  #get the count for top articles
+  s = sa.select([sa.func.count(link_thing_tbl.c.thing_id)], sa.func.score(link_thing_tbl.c.ups, link_thing_tbl.c.downs)>=0 )
+
+  result = conn.execute(s)
+
+  row = result.fetchone()
+
+  #testOutput = row[0]
+
+  articlecount = row[0]
+
+
+  #get the index of this article
+  #that's the number of top articles whose date is <= the current article's date
+  s = sa.select([sa.func.count(link_thing_tbl.c.thing_id)], sa.and_(sa.func.score(link_thing_tbl.c.ups, link_thing_tbl.c.downs)>=0,sa.func.score(link_thing_tbl.c.ups, link_thing_tbl.c.downs)<=articleScore) )
+
+  #testOutput = s
+
+  #testOutput = article._date
+
+  result = conn.execute(s)
+
+  row = result.fetchone()
+
+  #testOutput = row[0]
+
+  index = row[0]
 
 %>
 
@@ -146,7 +210,40 @@
 
 <%
 
-##TODO - implement the query for index and articlecount!
+  #TODO: use the real tag's ID!
+  #bug: this will report the wrong index if any other article has the same score
+  #tagID=tag.thing_ID
+  tagID=2
+
+  #bug: this doesn't scan for Link.c._deleted == False, Link.c._spam == False, data = True
+
+  #get the count for articles with this tag
+  s = sa.select([sa.func.count(link_data_tbl.c.value)], sa.and_(link_data_tbl.c.key=='author_id', link_thing_tbl.c.thing_id==linktag_thing_table.c.thing1_id, linktag_thing_table.c.thing2_id==tagID, link_thing_tbl.c.thing_id==link_data_tbl.c.thing_id) )
+
+  result = conn.execute(s)
+
+  row = result.fetchone()
+
+  #testOutput = row[0]
+
+  articlecount = row[0]
+
+
+  #get the index of this article
+  #that's the number of articles with this tagwhose date is <= the current article's date
+  s = sa.select([sa.func.count(link_data_tbl.c.value)], sa.and_(link_data_tbl.c.key=='author_id', link_thing_tbl.c.thing_id==linktag_thing_table.c.thing1_id, linktag_thing_table.c.thing2_id==tagID, link_thing_tbl.c.thing_id==link_data_tbl.c.thing_id, link_thing_tbl.c.date<=article._date) )
+
+  #testOutput = s
+
+  #testOutput = article._date
+
+  result = conn.execute(s)
+
+  row = result.fetchone()
+
+  #testOutput = row[0]
+
+  index = row[0]
 
 %>
 
